@@ -1,1 +1,1 @@
-autocmd BufNew,BufReadPost *.td setlocal filetype=tablegen
+au BufRead,BufNewFile *.td set filetype=tablegen

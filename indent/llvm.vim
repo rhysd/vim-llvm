@@ -25,15 +25,15 @@ if exists("*GetLLVMIndent")
   finish
 endif
 
-function! s:FindOpenBrace(lnum)
+function! FindOpenBrace(lnum)
   call cursor(a:lnum, 1)
-  return searchpair('{', '', '}', 'cbW')
+  return searchpair('{', '', '}', 'bW')
 endfun
 
 function! GetLLVMIndent()
   " On '}' align the same as the line containing the matching '{'
   let thisline = getline(v:lnum)
-  if thisline =~# '^\s*}'
+  if thisline =~ '^\s*}'
     call cursor(v:lnum, 1)
     silent normal %
     let opening_lnum = line('.')
@@ -43,8 +43,8 @@ function! GetLLVMIndent()
   endif
 
   " Indent labels the same as the current opening block
-  if thisline =~# ':\s*$'
-    let blockbegin = s:FindOpenBrace(v:lnum)
+  if thisline =~ ':\s*$'
+    let blockbegin = FindOpenBrace(v:lnum)
     if blockbegin > 0
       return indent(blockbegin)
     endif
@@ -64,7 +64,7 @@ function! GetLLVMIndent()
   let prevline = getline(prev_lnum)
 
   " Add a 'shiftwidth' after lines that start a block or labels
-  if prevline =~# '{\s*$' || prevline =~# ':\s*$'
+  if prevline =~ '{\s*$' || prevline =~ ':\s*$'
     let ind = ind + &shiftwidth
   endif
 

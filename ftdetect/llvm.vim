@@ -1,1 +1,1 @@
-autocmd BufNew,BufReadPost *.ll setlocal filetype=llvm
+au BufRead,BufNewFile *.ll set filetype=llvm
