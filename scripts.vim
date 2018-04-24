@@ -5,8 +5,11 @@ if did_filetype()
     finish
 endif
 
-if line('$') > 3
-    if getline(1) =~# '^; ModuleID = ' && getline(2) =~# '^target datalayout = ' && getline(3) =~# '^target triple = '
+if line('$') > 4
+    if getline(1) =~# '^; ModuleID = ' &&
+    \  getline(2) =~# '^source_filename = ' &&
+    \  getline(3) =~# '^target datalayout = ' &&
+    \  getline(4) =~# '^target triple = '
         setfiletype llvm
     endif
 endif
