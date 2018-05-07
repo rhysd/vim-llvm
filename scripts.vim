@@ -22,7 +22,7 @@
 " This script detects filetype 'llvm' from the content of file.
 " See :help new-filetype-scripts
 
-if did_filetype()
+if get(g:, 'llvm_extends_official', 1) == 0 || did_filetype()
     finish
 endif
 
