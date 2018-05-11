@@ -29,7 +29,7 @@ let s:KIND_BLOCK_FOLLOW = 1
 let s:KIND_FUNC_BEGIN = 2
 let s:KIND_FUNC_END = 3
 
-function! s:section_start(lnum) abort
+function! s:section_delim_at(lnum) abort
     let line = getline(a:lnum)
     let m = matchlist(line, '^\([^:]\+\):\%( \+; preds = %\(.\+\)\)\=$')
     if !empty(m)
@@ -48,18 +48,22 @@ function! s:section_start(lnum) abort
     return []
 endfunction
 
+function! s:is_section_delim(line, func_delim) abort
+    let sec = s:section_delim_at(a:line)
+    if empty(sec)
+        return 0
+    endif
+    let kind = sec[0]
+    return kind == s:KIND_BLOCK_PREC || kind == s:KIND_BLOCK_FOLLOW || kind == func_delim
+endfunction
+
 function! s:next_section(stop_func_begin) abort
     let func_delim = a:stop_func_begin ? s:KIND_FUNC_BEGIN : s:KIND_FUNC_END
     let last = line('$')
     let line = line('.')
     while line < last
         let line += 1
-        let sec = s:section_start(line)
-        if empty(sec)
-            continue
-        endif
-        let kind = sec[0]
-        if kind == s:KIND_BLOCK_PREC || kind == s:KIND_BLOCK_FOLLOW || kind == func_delim
+        if s:is_section_delim(line, func_delim)
             call cursor(line, col('.'))
             return
         endif
@@ -71,12 +75,7 @@ function! s:prev_section(stop_func_begin) abort
     let line = line('.')
     while line > 1
         let line -= 1
-        let sec = s:section_start(line)
-        if empty(sec)
-            continue
-        endif
-        let kind = sec[0]
-        if kind == s:KIND_BLOCK_PREC || kind == s:KIND_BLOCK_FOLLOW || kind == func_delim
+        if s:is_section_delim(line, func_delim)
             call cursor(line, col('.'))
             return
         endif
