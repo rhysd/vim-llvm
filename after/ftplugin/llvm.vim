@@ -36,7 +36,7 @@ function! s:section_delim_at(lnum) abort
         if m[2] ==# ''
             return [s:KIND_BLOCK_PREC, m[1]]
         else
-            return [s:KIND_BLOCK_FOLLOW, m[1], m[2]]
+            return [s:KIND_BLOCK_FOLLOW, m[1], split(m[2], ',\s*')]
         endif
     endif
     if line =~# '^}$'
