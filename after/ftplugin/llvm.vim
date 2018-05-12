@@ -31,7 +31,7 @@ let s:KIND_FUNC_END = 3
 
 function! s:section_delim_at(lnum) abort
     let line = getline(a:lnum)
-    let m = matchlist(line, '^\([^:]\+\):\%( \+; preds = %\(.\+\)\)\=$')
+    let m = matchlist(line, '^\([^:]\+\):\%( \+; preds = \(%.\+\)\)\=$')
     if !empty(m)
         if m[2] ==# ''
             return [s:KIND_BLOCK_PREC, m[1]]
@@ -59,7 +59,7 @@ endfunction
 
 function! s:next_section(stop_func_begin) abort
     let func_delim = a:stop_func_begin ? s:KIND_FUNC_BEGIN : s:KIND_FUNC_END
-    let last = line('$')
+    let last = line('$') - 1
     let line = line('.')
     while line < last
         let line += 1
@@ -89,5 +89,139 @@ if !g:llvm_ext_no_mapping
     nnoremap <buffer><silent>[] :<C-u>call <SID>prev_section(0)<CR>
 endif
 
-" TODO: Jump to a preceding block if current cursor is on the line of
-" block label
+function! s:function_range_at(linum) abort
+    let line = a:linum
+    while line >= 1
+        let s = getline(line)
+        if s =~# '^define\>'
+            let start = line
+            break
+        elseif s =~# '^}$'
+            return []
+        endif
+        let line -= 1
+    endwhile
+    if line < 1
+        return []
+    endif
+
+    let line = a:linum
+    let last = line('$')
+    while line <= last
+        let s = getline(line)
+        if s =~# '^}$'
+            let end = line
+            break
+        elseif s =~# '^define\>'
+            return []
+        endif
+        let line += 1
+    endwhile
+    if line > last
+        return []
+    endif
+
+    return [start, end]
+endfunction
+
+function! s:blocks_graph_at(linum) abort
+    let func_range = s:function_range_at(a:linum)
+    if empty(func_range)
+        return {}
+    endif
+    let line = func_range[0] + 1
+    let last = func_range[1] - 1
+    let graph = {}
+    while line <= last
+        let block = s:section_start(line)
+        if empty(block)
+            let line += 1
+            continue
+        endif
+        let block_name = '%' . block[1]
+        if block[0] == s:KIND_BLOCK_PREC
+            let graph[block_name] = {'line': line, 'preds': []}
+        elseif block[0] == s:KIND_BLOCK_FOLLOW
+            let graph[block_name] = {'line': line, 'preds': []}
+            for pred in block[2]
+                call add(graph[pred].preds, block_name)
+            endfor
+        else
+            echoerr 'unreachable'
+        endif
+        let line += 1
+    endwhile
+    return graph
+endfunction
+
+function! s:find_pred_block(linum) abort
+    let sec = s:section_start(a:linum)
+    if empty(sec) || sec[0] != s:KIND_BLOCK_PREC && sec[0] != s:KIND_BLOCK_FOLLOW
+        throw 'No block is starting at line ' . a:linum
+    endif
+    if sec[0] != s:KIND_BLOCK_FOLLOW
+        throw printf("Block '%s' has no pred block", sec[1])
+    endif
+    let block_name = '%' . sec[1]
+    let pred_block = sec[2][0]
+
+    let graph = s:blocks_graph_at(a:linum)
+    if empty(graph)
+        throw 'No block is found in function at line ' . a:linum
+    endif
+
+    if !has_key(graph, pred_block)
+        throw printf("Block '%s' (pred block of '%s') not found in function", pred_block, block_name)
+    endif
+    return graph[pred_block]
+endfunction
+
+function! s:move_to_pred_block() abort
+    try
+        let b = s:find_pred_block(line('.'))
+        call cursor(b.line, col('.'))
+    catch
+        echohl ErrorMsg | echom v:exception | echohl None
+    endtry
+endfunction
+
+function! s:find_following_block(linum) abort
+    let sec = s:section_start(a:linum)
+    if empty(sec) || sec[0] != s:KIND_BLOCK_PREC && sec[0] != s:KIND_BLOCK_FOLLOW
+        throw 'No block is starting at line ' . a:linum
+    endif
+    let block_name = '%' . sec[1]
+
+    let graph = s:blocks_graph_at(a:linum)
+    if empty(graph)
+        throw 'No block is found in function at line ' . a:linum
+    endif
+
+    let preds = graph[block_name].preds
+    if empty(preds)
+        throw printf("Block '%s' has no following block", block_name)
+    endif
+
+    echom printf("Block '%s' has %d following blocks: %s", block_name, len(preds), join(preds, ', '))
+
+    if !has_key(graph, preds[0])
+        throw printf("Block '%s' is not defined in function at line %d", preds[0], a:linum)
+    endif
+    return graph[preds[0]]
+endfunction
+
+function! s:move_to_following_block() abort
+    try
+        let b = s:find_following_block(line('.'))
+        call cursor(b.line, col('.'))
+    catch
+        echohl ErrorMsg | echom v:exception | echohl None
+    endtry
+endfunction
+
+if !g:llvm_ext_no_mapping
+    nnoremap <buffer><silent>[b :<C-u>call <SID>move_to_pred_block()<CR>
+    nnoremap <buffer><silent>]b :<C-u>call <SID>move_to_following_block()<CR>
+endif
+
+" TODO: Implement 'K' for definition jump
