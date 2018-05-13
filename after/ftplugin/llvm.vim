@@ -133,7 +133,7 @@ function! s:blocks_graph_at(linum) abort
     let last = func_range[1] - 1
     let graph = {}
     while line <= last
-        let block = s:section_start(line)
+        let block = s:section_delim_at(line)
         if empty(block)
             let line += 1
             continue
@@ -155,7 +155,7 @@ function! s:blocks_graph_at(linum) abort
 endfunction
 
 function! s:find_pred_block(linum) abort
-    let sec = s:section_start(a:linum)
+    let sec = s:section_delim_at(a:linum)
     if empty(sec) || sec[0] != s:KIND_BLOCK_PREC && sec[0] != s:KIND_BLOCK_FOLLOW
         throw 'No block is starting at line ' . a:linum
     endif
@@ -186,7 +186,7 @@ function! s:move_to_pred_block() abort
 endfunction
 
 function! s:find_following_block(linum) abort
-    let sec = s:section_start(a:linum)
+    let sec = s:section_delim_at(a:linum)
     if empty(sec) || sec[0] != s:KIND_BLOCK_PREC && sec[0] != s:KIND_BLOCK_FOLLOW
         throw 'No block is starting at line ' . a:linum
     endif
