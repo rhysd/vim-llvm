@@ -140,11 +140,11 @@ function! s:blocks_graph_at(linum) abort
         endif
         let block_name = '%' . block[1]
         if block[0] == s:KIND_BLOCK_PREC
-            let graph[block_name] = {'line': line, 'preds': []}
+            let graph[block_name] = {'line': line, 'follows': [], 'preds': []}
         elseif block[0] == s:KIND_BLOCK_FOLLOW
-            let graph[block_name] = {'line': line, 'preds': []}
-            for pred in block[2]
-                call add(graph[pred].preds, block_name)
+            let graph[block_name] = {'line': line, 'follows': [], 'preds': block[2]}
+            for follow in block[2]
+                call add(graph[follow].follows, block_name)
             endfor
         else
             echoerr 'unreachable'
@@ -197,17 +197,17 @@ function! s:find_following_block(linum) abort
         throw 'No block is found in function at line ' . a:linum
     endif
 
-    let preds = graph[block_name].preds
-    if empty(preds)
+    let follows = graph[block_name].follows
+    if empty(follows)
         throw printf("Block '%s' has no following block", block_name)
     endif
 
-    echom printf("Block '%s' has %d following blocks: %s", block_name, len(preds), join(preds, ', '))
+    echom printf("Block '%s' has %d following blocks: %s", block_name, len(follows), join(follows, ', '))
 
-    if !has_key(graph, preds[0])
-        throw printf("Block '%s' is not defined in function at line %d", preds[0], a:linum)
+    if !has_key(graph, follows[0])
+        throw printf("Block '%s' is not defined in function at line %d", follows[0], a:linum)
     endif
-    return graph[preds[0]]
+    return graph[follows[0]]
 endfunction
 
 function! s:move_to_following_block() abort
