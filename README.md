@@ -28,8 +28,9 @@ This repository provides some advanced features which are not supported in LLVM 
 - `after/**/*.vim`: Extended filetype support
 - `scripts.vim`: Improved `llvm` filetype detection
 
-Some useful mappings to jump among basic blocks are provided.
+Some useful mappings to jump a cursor are provided.
 
+- `K`: Jump to the definition of an identifier under the cursor.
 - `]]`, `][`: Move the cursor to the next basic block (Please see `:help ]]` for more details).
 - `b]`: Jump to a basic block which follows the current basic block.
 - `b[`: Jump to a basic block which the current basic block is following.
