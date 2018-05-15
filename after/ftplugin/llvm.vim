@@ -224,4 +224,161 @@ if !g:llvm_ext_no_mapping
     nnoremap <buffer><silent>]b :<C-u>call <SID>move_to_following_block()<CR>
 endif
 
-" TODO: Implement 'K' for definition jump
+function! s:get_func_identifiers(line) abort
+    let idx = stridx(a:line, '@')
+    if idx == -1
+        " Invalid signature
+        return []
+    endif
+
+    " e.g. define internal i32 @foo(...) { -> @foo(...) {
+    let sig = a:line[idx:]
+
+    let idx = stridx(sig, '(')
+    if idx == -1
+        " Invalid signature
+        return []
+    endif
+
+    " @foo(...) { -> @foo
+    let idents = [sig[:idx-1]]
+
+    " @foo(...) { -> ...) {
+    let params = sig[idx+1:]
+
+    let idx = strridx(sig, ')')
+    if idx == -1
+        return idents
+    endif
+
+    " ...) { -> ...
+    let params = params[:idx-1]
+
+    " Gather parameters in function signature
+    while params !=# ''
+        let m = matchlist(params, '^[^%]*\(%\%("[^"]\+"\|[[:alnum:]_.]\+\)\)\s*\(.*\)$')
+        if empty(m)
+            break
+        endif
+        " echom 'FOUND: ' . string(m[1]) . ' in ' . string(params)
+        let idents += [m[1]]
+        let params = m[2]
+    endwhile
+
+    return idents
+endfunction
+
+function! s:get_identifiers(line) abort
+    " Registers and type defs
+    let m = matchlist(a:line, '^\s*\(%\S\+\)\s\+=')
+    if !empty(m)
+        return [m[1]]
+    endif
+
+    " Constants
+    let m = matchlist(a:line, '^\(@\S\+\)\s\+=.\+\<constant\>')
+    if !empty(m)
+        return [m[1]]
+    endif
+
+    " Labels for basic blocks
+    let m = matchlist(a:line, '^\([^:]\+\):\%(\s\+; preds = .\+\)\=$')
+    if !empty(m)
+        return ['%' . m[1]]
+    endif
+
+    " Meta variables
+    let m = matchlist(a:line, '^\(!\S\+\)\s\+=')
+    if !empty(m)
+        return [m[1]]
+    endif
+
+    " Attributes
+    let m = matchlist(a:line, '^attributes\s\+\(#\d\+\)\s\+=')
+    if !empty(m)
+        return [m[1]]
+    endif
+
+    if a:line =~# '^\%(declare\|define\)\>'
+        return s:get_func_identifiers(a:line)
+    endif
+
+    return []
+endfunction
+
+function! s:extract_identifier(word) abort
+    if strlen(a:word) <= 1
+        return ''
+    endif
+
+    let prefix = a:word[0]
+    if prefix ==# '@' || prefix ==# '%' || prefix ==# '!'
+        if prefix ==# '!' && a:word[1] ==# '{'
+            return ''
+        endif
+
+        if a:word[1] == '"'
+            let idx = stridx(a:word, '"', 2)
+            if idx == -1
+                return ''
+            endif
+            " @"foo" or %"foo"
+            return a:word[:idx]
+        else
+            " @foo or %foo
+            return matchstr(a:word, '^[@%!][[:alnum:]_.]\+')
+        endif
+    endif
+
+    if prefix ==# '#'
+        return matchstr(a:word, '^#\d\+')
+    endif
+
+    return ''
+endfunction
+
+function! s:goto_definition() abort
+    " XXX: This does not support identifiers which contains spaces
+    let word = expand('<cWORD>')
+    if word ==# ''
+        echom 'No identifier found under the cursor'
+        return
+    endif
+    let ident = s:extract_identifier(word)
+    if ident ==# ''
+        echom 'No identifier found under the cursor'
+        return
+    endif
+
+    " Definition tends to be near its usages. Look back at first.
+    let line = line('.')
+    while line > 0
+        for found in s:get_identifiers(getline(line))
+            if ident ==# found
+                call cursor(line, col('.'))
+                return
+            endif
+        endfor
+        let line -= 1
+    endwhile
+
+    let line = line('.') + 1
+    let last = line('$')
+    while line <= last
+        for found in s:get_identifiers(getline(line))
+            if ident ==# found
+                call cursor(line, col('.'))
+                return
+            endif
+        endfor
+        let line += 1
+    endwhile
+
+    echom "No definition for '" . ident . "' found"
+endfunction
+
+" TODO: Open language reference manual for the instruction under the cursor
+" with 'K'
+if !g:llvm_ext_no_mapping
+    nnoremap <buffer><silent>K :<C-u>call <SID>goto_definition()<CR>
+endif
