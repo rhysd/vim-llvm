@@ -337,6 +337,15 @@ function! s:extract_identifier(word) abort
     return ''
 endfunction
 
+function! s:jump_to_identifier_at(linum, ident) abort
+    let line = getline(a:linum)
+    let column = stridx(line, a:ident) + 1
+    if column == 0
+        let column = col('.')
+    endif
+    call cursor(a:linum, column)
+endfunction
+
 function! s:goto_definition() abort
     " XXX: This does not support identifiers which contains spaces
     let word = expand('<cWORD>')
@@ -355,7 +364,7 @@ function! s:goto_definition() abort
     while line > 0
         for found in s:get_identifiers(getline(line))
             if ident ==# found
-                call cursor(line, col('.'))
+                call s:jump_to_identifier_at(line, ident)
                 return
             endif
         endfor
@@ -367,7 +376,7 @@ function! s:goto_definition() abort
     while line <= last
         for found in s:get_identifiers(getline(line))
             if ident ==# found
-                call cursor(line, col('.'))
+                call s:jump_to_identifier_at(line, ident)
                 return
             endif
         endfor
