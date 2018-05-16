@@ -30,7 +30,8 @@ This repository provides some advanced features which are not supported in LLVM 
 
 Some useful mappings to jump a cursor are provided.
 
-- `K`: Jump to the definition of an identifier under the cursor.
+- `K`: Jump to the definition of an identifier under the cursor. Or if an instruction (like `getelementptr`)
+  is under the cursor, the explanation of the instruction will be opened in a browser.
 - `]]`, `][`: Move the cursor to the next basic block (Please see `:help ]]` for more details).
 - `b]`: Jump to a basic block which follows the current basic block.
 - `b[`: Jump to a basic block which the current basic block is following.
@@ -47,6 +48,10 @@ let g:llvm_extends_official = 0
 
 Please choose one of follows:
 
-- Use your favorite plugin manager like [vim-plug](https://github.com/junegunn/vim-plug), [dein.vim](https://github.com/Shougo/dein.vim), [minpac](https://github.com/k-takata/minpac).
-- Use `:packadd` (Please seee `:help packadd` for more details).
+- Use your favorite plugin manager like [vim-plug][], [dein.vim][], [minpac][].
+- Use `:packadd` (Please see `:help packadd` for more details).
 - Copy all directories and `scripts.vim` to your `~/.vim` (or `~/vimfiles` on Windows) manually. (not recommended)
+
+[vim-plug]: https://github.com/junegunn/vim-plug
+[dein.vim]: https://github.com/Shougo/dein.vim
+[minpac]: https://github.com/k-takata/minpac
