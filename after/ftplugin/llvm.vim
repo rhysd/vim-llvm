@@ -346,7 +346,57 @@ function! s:jump_to_identifier_at(linum, ident) abort
     call cursor(a:linum, column)
 endfunction
 
+function! s:browser_open_command() abort
+    if exists('g:llvm_ext_browser_open_command')
+        return g:llvm_ext_browser_open_command
+    endif
+    if exists('s:browser_opener')
+        return s:browser_opener
+    endif
+    if has('mac')
+        let s:browser_opener = 'open'
+    elseif has('win32') || has('win64')
+        let s:browser_opener =  'cmd /q /c start ""'
+    elseif executable('xdg-open')
+        let s:browser_opener = 'xdg-open'
+    elseif executable('chromium')
+        let s:browser_opener = 'chromium'
+    elseif executable('google-chrome')
+        let s:browser_opener = 'google-chrome'
+    elseif executable('firefox')
+        let s:browser_opener = 'firefox'
+    else
+        return ''
+    endif
+    return s:browser_opener
+endfunction
+
+function! s:open_browser(url) abort
+    let exe = s:browser_open_command()
+    if exe ==# ''
+        throw "Failed to open a browser. I don't know how to open a browser: Please set g:llvm_ext_browser_open_command"
+    endif
+    let cmd = exe . ' ' . shellescape(a:url)
+    let out = system(cmd)
+    if v:shell_error
+        throw printf("Failed to open a browser with command '%s': %s", cmd, out)
+    endif
+endfunction
+
 function! s:goto_definition() abort
+    let syn_name = synIDattr(synID(line('.'),col('.'),1),'name')
+    if syn_name ==# 'llvmStatement'
+        let word = expand('<cword>')
+        if word !=# ''
+            try
+                " Open browser assuming a word under the cursor is an instruction
+                call s:open_browser('https://llvm.org/docs/LangRef.html#' . word . '-instruction')
+            catch /^Failed to open a browser/
+                echohl ErrorMsg | echom v:exception | echohl None
+            endtry
+        endif
+    endif
+
     " XXX: This does not support identifiers which contains spaces
     let word = expand('<cWORD>')
     if word ==# ''
@@ -386,8 +436,6 @@ function! s:goto_definition() abort
     echom "No definition for '" . ident . "' found"
 endfunction
 
-" TODO: Open language reference manual for the instruction under the cursor
-" with 'K'
 if !g:llvm_ext_no_mapping
     nnoremap <buffer><silent>K :<C-u>call <SID>goto_definition()<CR>
 endif
