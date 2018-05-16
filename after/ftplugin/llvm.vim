@@ -382,6 +382,7 @@ function! s:open_browser(url) abort
 endfunction
 
 function! s:goto_definition() abort
+    " Open language reference manual under the cursor in browser
     let syn_name = synIDattr(synID(line('.'),col('.'),1),'name')
     if syn_name ==# 'llvmStatement'
         let word = expand('<cword>')
@@ -393,6 +394,7 @@ function! s:goto_definition() abort
                 echohl ErrorMsg | echom v:exception | echohl None
             endtry
         endif
+        return
     endif
 
     " XXX: This does not support identifiers which contains spaces
