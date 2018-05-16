@@ -353,20 +353,18 @@ function! s:browser_open_command() abort
     if exists('s:browser_opener')
         return s:browser_opener
     endif
+    let s:browser_opener = ''
     if has('mac')
         let s:browser_opener = 'open'
     elseif has('win32') || has('win64')
         let s:browser_opener =  'cmd /q /c start ""'
-    elseif executable('xdg-open')
-        let s:browser_opener = 'xdg-open'
-    elseif executable('chromium')
-        let s:browser_opener = 'chromium'
-    elseif executable('google-chrome')
-        let s:browser_opener = 'google-chrome'
-    elseif executable('firefox')
-        let s:browser_opener = 'firefox'
     else
-        return ''
+        for cmd in ['xdg-open', 'chromium', 'google-chrome', 'firefox']
+            if executable(cmd)
+                let s:browser_opener = cmd
+                break
+            endif
+        endfor
     endif
     return s:browser_opener
 endfunction
