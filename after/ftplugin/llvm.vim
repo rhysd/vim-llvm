@@ -370,14 +370,14 @@ function! s:browser_open_command() abort
 endfunction
 
 function! s:open_browser(url) abort
-    let exe = s:browser_open_command()
-    if exe ==# ''
+    let cmd = s:browser_open_command()
+    if cmd ==# ''
         throw "Failed to open a browser. I don't know how to open a browser: Please set g:llvm_ext_browser_open_command"
     endif
-    let cmd = exe . ' ' . shellescape(a:url)
-    let out = system(cmd)
+    let cmdline = cmd . ' ' . shellescape(a:url)
+    let out = system(cmdline)
     if v:shell_error
-        throw printf("Failed to open a browser with command '%s': %s", cmd, out)
+        throw printf("Failed to open a browser with command '%s': %s", cmdline, out)
     endif
 endfunction
 
