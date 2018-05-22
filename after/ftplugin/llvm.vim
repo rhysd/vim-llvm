@@ -23,6 +23,7 @@ if get(g:, 'llvm_extends_official', 1) == 0
 endif
 
 let g:llvm_ext_no_mapping = get(g:, 'llvm_ext_no_mapping', 0)
+let g:llvm_ext_lli_executable = get(g:, 'llvm_ext_lli_executable', 'lli')
 
 let s:KIND_BLOCK_PREC = 0
 let s:KIND_BLOCK_FOLLOW = 1
@@ -438,4 +439,37 @@ endfunction
 
 if !g:llvm_ext_no_mapping
     nnoremap <buffer><silent>K :<C-u>call <SID>goto_definition()<CR>
+endif
+
+function! s:run_lli(...) abort
+    if !has('job') || !has('channel') || !has('terminal')
+        echohl ErrorMsg
+        echomsg ':LLI requires terminal feature. Please update your Vim to 8.0+'
+        echohl None
+        return
+    endif
+
+    if !executable(g:llvm_ext_lli_executable)
+        echohl ErrorMsg
+        echomsg g:llvm_ext_lli_executable . ' is not executable. Please set g:llvm_ext_lli_executable'
+        echohl None
+        return
+    endif
+
+    if a:0 > 0
+        let bufnr = term_start([g:llvm_ext_lli_executable, a:1])
+        echo 'Run lli in termnal buffer(' . bufnr . ')'
+        return
+    endif
+
+    let tmpfile = tempname()
+    echom tmpfile
+    call writefile(getline(1, '$'), tmpfile)
+    let Cleanup = {ch -> filereadable(tmpfile) ? delete(tmpfile) : 0}
+    let bufnr = term_start([g:llvm_ext_lli_executable, tmpfile], {'close_cb': Cleanup, 'exit_cb': Cleanup})
+    echo 'Run lli in termnal buffer(' . bufnr . ')'
+endfunction
+
+if !exists(':LLI')
+    command! -buffer -nargs=? -bar -complete=file LLI call <SID>run_lli(<f-args>)
 endif
