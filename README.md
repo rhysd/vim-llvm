@@ -28,6 +28,14 @@ This repository provides some advanced features which are not supported in LLVM 
 - `after/**/*.vim`: Extended filetype support
 - `scripts.vim`: Improved `llvm` filetype detection
 
+If you want to disable this feature, you write a config in your `vimrc`:
+
+```vim
+let g:llvm_extends_official = 0
+```
+
+### Mappings
+
 Some useful mappings to jump a cursor are provided.
 
 - `K`: Jump to the definition of an identifier under the cursor. Or if an instruction (like `getelementptr`)
@@ -38,11 +46,17 @@ Some useful mappings to jump a cursor are provided.
 
 More mappings will be supported (under construction).
 
-If you want to disable this feature, you write a config in your `vimrc`:
+### Commands
 
-```vim
-let g:llvm_extends_official = 0
-```
+Some useful commands are defined in `llvm` filetype buffers.
+
+#### `:LLI [file]`
+
+Runs the given `file` using `lli` command. If `file` is omitted, it runs current buffer instead.
+This command uses Neovim/Vim8 terminal feature. The LLVM IR code is run in job asynchronously and
+the result is output in a temporary terminal buffer.
+
+The default command to run is `lli`. You can change it by setting `g:llvm_ext_lli_executable`.
 
 ## Installation
 
