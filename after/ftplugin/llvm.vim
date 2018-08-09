@@ -261,7 +261,6 @@ function! s:get_func_identifiers(line) abort
         if empty(m)
             break
         endif
-        " echom 'FOUND: ' . string(m[1]) . ' in ' . string(params)
         let idents += [m[1]]
         let params = m[2]
     endwhile
