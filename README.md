@@ -21,6 +21,8 @@ Following files are imported from `llvm/utils/vim`. They are updated at LLVM ver
 - `indent/*.vim`
 - `syntax/*.vim`
 
+Imported from LLVM 9.0.1.
+
 ## Extended features
 
 This repository provides some advanced features which are not supported in LLVM official repository.
