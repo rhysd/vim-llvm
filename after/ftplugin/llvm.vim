@@ -55,7 +55,7 @@ function! s:is_section_delim(line, func_delim) abort
         return 0
     endif
     let kind = sec[0]
-    return kind == s:KIND_BLOCK_PREC || kind == s:KIND_BLOCK_FOLLOW || kind == func_delim
+    return kind == s:KIND_BLOCK_PREC || kind == s:KIND_BLOCK_FOLLOW || kind == a:func_delim
 endfunction
 
 function! s:next_section(stop_func_begin) abort
