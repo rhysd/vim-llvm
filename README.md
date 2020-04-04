@@ -48,6 +48,14 @@ Some useful mappings to jump a cursor are provided.
 
 More mappings will be supported (under construction).
 
+When `g:llvm_ext_no_mapping` is set to `1`, these mappings won't be defined. Instead, please map `<Plug>`
+mappings to your favorite key sequence.
+
+```vim
+" e.g. Map 'go to definition' to gd
+autocmd FileType llvm nmap <buffer><silent>gd <Plug>(llvm-goto-definition)
+```
+
 ### Commands
 
 Some useful commands are defined in `llvm` filetype buffers.
