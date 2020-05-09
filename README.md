@@ -12,7 +12,7 @@ official repository and provides some extended features.
 If no license is specified in the header of a file (it means that it came from LLVM official repository),
 the file is distributed under the license described in [LICENSE.txt](LICENSE.txt).
 
-## Imported from upstream (LLVM official repository)
+## Imported from upstream ([LLVM official repository][llvm])
 
 Following files are imported from `llvm/utils/vim`. They are updated at LLVM version bump.
 
@@ -21,7 +21,7 @@ Following files are imported from `llvm/utils/vim`. They are updated at LLVM ver
 - `indent/*.vim`
 - `syntax/*.vim`
 
-Imported from LLVM 9.0.1.
+Imported from LLVM 10.0.0.
 
 ## Extended features
 
@@ -76,6 +76,7 @@ Please choose one of follows:
 - Use `:packadd` (Please see `:help packadd` for more details).
 - Copy all directories and `scripts.vim` to your `~/.vim` (or `~/vimfiles` on Windows) manually. (not recommended)
 
+[llvm]: https://github.com/llvm/llvm-project
 [vim-plug]: https://github.com/junegunn/vim-plug
 [dein.vim]: https://github.com/Shougo/dein.vim
 [minpac]: https://github.com/k-takata/minpac
