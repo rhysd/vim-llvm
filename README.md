@@ -70,11 +70,11 @@ The default command to run is `lli`. You can change it by setting `g:llvm_ext_ll
 
 ## Installation
 
-Please choose one of follows:
+Three options. First one or second one are recommended.
 
-- Use your favorite plugin manager like [vim-plug][], [dein.vim][], [minpac][].
-- Use `:packadd` (Please see `:help packadd` for more details).
-- Copy all directories and `scripts.vim` to your `~/.vim` (or `~/vimfiles` on Windows) manually. (not recommended)
+- Use your favorite plugin manager such as [vim-plug][], [dein.vim][], [minpac][]
+- Use `:packadd` (Please see `:help packadd` for more details)
+- Copy all directories and `scripts.vim` to your `~/.vim` (or `~/vimfiles` on Windows) manually (not recommended)
 
 [llvm]: https://github.com/llvm/llvm-project
 [vim-plug]: https://github.com/junegunn/vim-plug
