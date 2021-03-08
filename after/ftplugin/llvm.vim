@@ -325,7 +325,7 @@ function! s:extract_identifier(word) abort
             return ''
         endif
 
-        if a:word[1] == '"'
+        if a:word[1] ==# '"'
             let idx = stridx(a:word, '"', 2)
             if idx == -1
                 return ''
@@ -339,7 +339,7 @@ function! s:extract_identifier(word) abort
     endif
 
     if prefix ==# '#'
-        return matchstr(a:word, '^#\d\+')
+        return matchstr(a:word, '^#\d\+\>')
     endif
 
     return ''
