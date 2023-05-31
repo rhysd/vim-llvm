@@ -22,7 +22,7 @@ version bump.
 - `indent/*.vim`
 - `syntax/*.vim`
 
-Imported from LLVM 15.0.7 (`8dfdcc7b7bf66834a761bd8de445840ef68e4d1a`)
+Imported from LLVM 16.0.4 (`ae42196bc493ffe877a7e3dff8be32035dea4d07`)
 
 ## Extended features
 
