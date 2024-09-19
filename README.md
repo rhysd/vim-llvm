@@ -2,7 +2,7 @@ Vim files for Low Level Virtual Machine (LLVM)
 ==============================================
 
 This repository and its subdirectories contain source code for Vim files for the Low Level Virtual
-Machine, a toolkit for the construction of highly optimized compilers, optimizers, and runtime
+Machine (LLVM), a toolkit for the construction of highly optimized compilers, optimizers, and runtime
 environments. LLVM is open source software. You may freely distribute it under the terms of the license
 agreement found in LICENSE.txt.
 
@@ -22,7 +22,7 @@ version bump.
 - `indent/*.vim`
 - `syntax/*.vim`
 
-Imported from LLVM 16.0.4 (`ae42196bc493ffe877a7e3dff8be32035dea4d07`)
+Imported from LLVM 19.1.0 (`a4bf6cd7cfb1a1421ba92bca9d017b49936c55e4`)
 
 ## Extended features
 
