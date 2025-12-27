@@ -18,5 +18,9 @@
 " OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 " THE SOFTWARE.
 
+if get(g:, 'llvm_extends_official', 1) == 0
+    finish
+endif
+
 syn keyword llvmKeyword attributes
 syn match llvmNoName /#\d\+\>/
